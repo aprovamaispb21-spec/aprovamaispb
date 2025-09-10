@@ -72,6 +72,9 @@
           <button type="submit" class="btn-modern">🚀 Enviar Inscrição</button>
           <div id="loading" class="loading" style="display:none"></div>
         </div>
+        
+        <!-- Área onde o botão do WhatsApp será inserido -->
+        <div id="whatsapp-container" style="margin-top: 20px; display: none;"></div>
       </form>
     </div>
   </main>
@@ -99,7 +102,189 @@
     <p class="copyright">© 2025 AprovaMaisPB - Todos os direitos reservados.</p>
   </footer>
 
-<script type="module" src="./assets/js/app.js"></script>
+<script type="module">
+  import { salvarInscricao } from "./assets/js/firebase.js";
+  import { enviarEmail } from "./assets/js/email.js";
+
+  function validarCPF(cpf) {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+      soma += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    
+    let resto = 11 - (soma % 11);
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.charAt(9))) return false;
+    
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+      soma += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    
+    resto = 11 - (soma % 11);
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.charAt(10))) return false;
+    
+    return true;
+  }
+
+  function formatarCPF(cpf) {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  }
+
+  function gerarSenha(tamanho = 8) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({ length: tamanho }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+  }
+
+  function mostrarNotificacao(mensagem, tipo = "success") {
+    // Criar elemento de notificação
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo}`;
+    notification.innerHTML = `
+      <span>${mensagem}</span>
+      <button onclick="this.parentElement.remove()">×</button>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 100);
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        notification.remove();
+      }, 300);
+    }, 5000);
+  }
+
+  // Matrícula
+  const form = document.getElementById("registration-form");
+  if (form) {
+    // Adicionar máscara de CPF
+    const cpfInput = document.getElementById("cpf");
+    if (cpfInput) {
+      cpfInput.addEventListener("input", function(e) {
+        let value = e.target.value.replace(/\D/g, "");
+        if (value.length > 11) value = value.slice(0, 11);
+        
+        if (value.length <= 11) {
+          value = value.replace(/(\d{3})(\d)/, "$1.$2");
+          value = value.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+          value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+        }
+        
+        e.target.value = value;
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      // Validação
+      const cpf = document.getElementById("cpf").value.replace(/\D/g, "");
+      if (!validarCPF(cpf)) {
+        mostrarNotificacao("CPF inválido. Por favor, verifique o número.", "error");
+        return;
+      }
+      
+      const loading = document.getElementById("loading");
+      if (loading) loading.style.display = "block";
+      
+      const dados = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        cpf: cpf,
+        course: document.getElementById("course").value,
+        numeroPedido: Math.floor(100000 + Math.random() * 900000),
+        senha: gerarSenha(),
+        criadoEm: new Date().toISOString(),
+        status: "pendente"
+      };
+      
+      try {
+        await salvarInscricao(dados);
+        await enviarEmail(dados);
+        
+        mostrarNotificacao("✅ Inscrição concluída! Seus dados foram enviados para " + dados.email);
+        form.reset();
+        
+        // Botão WhatsApp - CORREÇÃO AQUI
+        const msg = `Olá, meu nome é ${dados.name}.%0A
+Me inscrevi no curso *${dados.course}*.%0A
+Número do pedido: ${dados.numeroPedido}%0A
+CPF: ${formatarCPF(dados.cpf)}%0A
+Telefone: ${dados.phone}%0A
+Gostaria de confirmar o pagamento da matrícula via WhatsApp.`;
+        
+        const numeroWhats = "5583999999999"; // Número formatado sem caracteres especiais
+        const url = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(msg)}`;
+        
+        const whatsappContainer = document.getElementById("whatsapp-container");
+        if (whatsappContainer) {
+          // Limpar conteúdo anterior
+          whatsappContainer.innerHTML = '';
+          
+          const btnWpp = document.createElement("a");
+          btnWpp.href = url;
+          btnWpp.target = "_blank";
+          btnWpp.className = "btn-modern";
+          btnWpp.style.backgroundColor = "#25D366";
+          btnWpp.style.marginTop = "20px";
+          btnWpp.innerHTML = "📲 Confirmar pagamento no WhatsApp";
+          whatsappContainer.appendChild(btnWpp);
+          whatsappContainer.style.display = "block";
+        }
+      } catch (err) {
+        console.error(err);
+        mostrarNotificacao("❌ Erro ao salvar inscrição. Tente novamente.", "error");
+      } finally {
+        if (loading) loading.style.display = "none";
+      }
+    });
+  }
+
+  // Adicionar estilo de notificação se não existir
+  if (!document.querySelector('style#notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles';
+    style.textContent = `
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateX(100%);
+        opacity: 0;
+        transition: transform 0.3s, opacity 0.3s;
+      }
+      .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      .notification.success {
+        background: #28a745;
+      }
+      .notification.error {
+        background: #dc3545;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+</script>
+
 <script>
 function toggleMenu(){
   document.querySelector('.menu').classList.toggle('open');
