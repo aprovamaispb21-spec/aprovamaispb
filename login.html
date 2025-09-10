@@ -173,6 +173,34 @@
     </div>
 
     <script>
+        // Verificar se já está logado
+        function checkIfAlreadyLoggedIn() {
+            const isLoggedIn = localStorage.getItem('adminLoggedIn');
+            const loginTime = localStorage.getItem('adminLoginTime');
+            
+            // Se está logado e o login foi feito há menos de 8 horas
+            if (isLoggedIn && loginTime) {
+                const currentTime = new Date().getTime();
+                const timeDiff = currentTime - parseInt(loginTime);
+                const hoursDiff = timeDiff / (1000 * 60 * 60);
+                
+                if (hoursDiff < 8) {
+                    window.location.href = 'admin.html';
+                    return true;
+                } else {
+                    // Login expirado
+                    localStorage.removeItem('adminLoggedIn');
+                    localStorage.removeItem('adminLoginTime');
+                }
+            }
+            return false;
+        }
+        
+        // Verificar se já está logado ao carregar a página
+        if (checkIfAlreadyLoggedIn()) {
+            // Redirecionamento será feito pela função acima
+        }
+        
         document.getElementById('admin-login-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -197,6 +225,10 @@
                 messageDiv.textContent = 'Login bem-sucedido! Redirecionando...';
                 messageDiv.classList.add('success');
                 messageDiv.style.display = 'block';
+                
+                // Salvar estado de login com timestamp
+                localStorage.setItem('adminLoggedIn', 'true');
+                localStorage.setItem('adminLoginTime', new Date().getTime().toString());
                 
                 // Redirecionar para o dashboard após 1 segundo
                 setTimeout(() => {
