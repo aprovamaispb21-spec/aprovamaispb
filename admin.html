@@ -5,93 +5,144 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard - AprovaMaisPB</title>
   <link rel="stylesheet" href="./assets/css/style.css" />
+  <style>
+    .loading-dashboard {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #00AEEF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <nav class="nav">
-      <div class="brand">
-        <img src="./assets/img/logo_aprovamaispb.png" alt="Logo" />
-        <span>AprovaMaisPB</span>
+  <div id="auth-check" class="loading-dashboard">
+    <div class="loading-spinner"></div>
+    <p>Verificando autenticação...</p>
+  </div>
+
+  <div id="dashboard-content" style="display: none;">
+    <header>
+      <nav class="nav">
+        <div class="brand">
+          <img src="./assets/img/logo_aprovamaispb.png" alt="Logo" />
+          <span>AprovaMaisPB</span>
+        </div>
+        <ul class="menu">
+          <li><a href="index.html">Início</a></li>
+          <li><a href="matricula.html">Matricule-se</a></li>
+          <li><a href="professores.html">Professores</a></li>
+          <li><a href="login.html">Dashboard</a></li>
+        </ul>
+        <button class="hamburger" aria-label="menu" onclick="toggleMenu()">☰</button>
+      </nav>
+    </header>
+
+    <main class="dashboard">
+      <h1>Painel do Administrador</h1>
+      
+      <div class="dash-grid">
+        <section class="card">
+          <h3>Inscrições</h3>
+          
+          <div class="search-container">
+            <input id="search" placeholder="Pesquisar por nome, email, curso..." />
+            <select id="filter-course" class="filter-select">
+              <option value="">Todos os cursos</option>
+              <option value="Medicina">Medicina</option>
+              <option value="Engenharia">Engenharia</option>
+              <option value="Direito">Direito</option>
+            </select>
+            <select id="filter-status" class="filter-select">
+              <option value="">Todos os status</option>
+              <option value="pendente">Pendente</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+          
+          <table id="inscricoes-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Curso</th>
+                <th>CPF</th>
+                <th>Criado</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          
+          <div id="pagination" class="pagination"></div>
+          
+          <div class="actions">
+            <button id="export-btn" class="btn-modern">📊 Exportar CSV</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Professores</h3>
+          <button id="gerar-prof" class="btn-modern">👨‍🏫 Gerar login de professor</button>
+          <ul id="prof-list"></ul>
+        </section>
       </div>
-      <ul class="menu">
-        <li><a href="index.html">Início</a></li>
-        <li><a href="matricula.html">Matricule-se</a></li>
-        <li><a href="professores.html">Professores</a></li>
-        <li><a href="login.html">Dashboard</a></li>
-      </ul>
-      <button class="hamburger" aria-label="menu" onclick="toggleMenu()">☰</button>
-    </nav>
-  </header>
-
-  <div id="dashboard" class="dashboard">
-    <h1>Painel do Administrador</h1>
-    
-    <div class="dash-grid">
-      <section class="card">
-        <h3>Inscrições</h3>
-        
-        <div class="search-container">
-          <input id="search" placeholder="Pesquisar por nome, email, curso..." />
-          <select id="filter-course" class="filter-select">
-            <option value="">Todos os cursos</option>
-            <option value="Medicina">Medicina</option>
-            <option value="Engenharia">Engenharia</option>
-            <option value="Direito">Direito</option>
-          </select>
-          <select id="filter-status" class="filter-select">
-            <option value="">Todos os status</option>
-            <option value="pendente">Pendente</option>
-            <option value="confirmado">Confirmado</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-        </div>
-        
-        <table id="inscricoes-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Curso</th>
-              <th>CPF</th>
-              <th>Criado</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        
-        <div id="pagination" class="pagination"></div>
-        
-        <div class="actions">
-          <button id="export-btn" class="btn-modern">📊 Exportar CSV</button>
-        </div>
-      </section>
-
-      <section class="card">
-        <h3>Professores</h3>
-        <button id="gerar-prof" class="btn-modern">👨‍🏫 Gerar login de professor</button>
-        <ul id="prof-list"></ul>
-      </section>
-    </div>
-    
-    <div class="actions">
-      <button id="logout-admin" class="btn-modern outline">🚪 Sair</button>
-    </div>
+      
+      <div class="actions">
+        <button id="logout-admin" class="btn-modern outline">🚪 Sair</button>
+      </div>
+    </main>
   </div>
 
   <script>
     // Verificar se o usuário está logado
     function checkAuth() {
       const isLoggedIn = localStorage.getItem('adminLoggedIn');
-      if (!isLoggedIn) {
-        window.location.href = 'login.html';
+      const loginTime = localStorage.getItem('adminLoginTime');
+      
+      if (!isLoggedIn || !loginTime) {
+        redirectToLogin();
+        return false;
       }
+      
+      // Verificar se o login expirou (8 horas)
+      const currentTime = new Date().getTime();
+      const timeDiff = currentTime - parseInt(loginTime);
+      const hoursDiff = timeDiff / (1000 * 60 * 60);
+      
+      if (hoursDiff > 8) {
+        localStorage.removeItem('adminLoggedIn');
+        localStorage.removeItem('adminLoginTime');
+        redirectToLogin();
+        return false;
+      }
+      
+      return true;
+    }
+    
+    function redirectToLogin() {
+      window.location.href = 'login.html';
     }
     
     // Logout function
     function logout() {
       localStorage.removeItem('adminLoggedIn');
-      window.location.href = 'login.html';
+      localStorage.removeItem('adminLoginTime');
+      redirectToLogin();
     }
     
     // Menu toggle function
@@ -100,10 +151,16 @@
     }
     
     // Check authentication on page load
-    checkAuth();
-    
-    // Add event listener to logout button
-    document.getElementById('logout-admin').addEventListener('click', logout);
+    document.addEventListener('DOMContentLoaded', function() {
+      if (checkAuth()) {
+        // Mostrar conteúdo do dashboard
+        document.getElementById('auth-check').style.display = 'none';
+        document.getElementById('dashboard-content').style.display = 'block';
+        
+        // Adicionar event listener ao botão de logout
+        document.getElementById('logout-admin').addEventListener('click', logout);
+      }
+    });
   </script>
   
   <script type="module">
