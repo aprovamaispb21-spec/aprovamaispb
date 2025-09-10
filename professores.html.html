@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Professores - AprovaMaisPB</title>
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="brand">
+        <img src="./assets/img/logo_aprovamaispb.png" alt="Logo" />
+        <span>AprovaMaisPB</span>
+      </div>
+      <ul class="menu">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="matricula.html">Matricule-se</a></li>
+        <li><a href="professores.html">Professores</a></li>
+        <li><a href="admin.html">Dashboard</a></li>
+      </ul>
+      <button class="hamburger" aria-label="menu" onclick="toggleMenu()">☰</button>
+    </nav>
+  </header>
+
+  <main class="prof-login">
+    <h1>Login do Professor</h1>
+    <div class="form-card small">
+      <form id="prof-login-form">
+        <div class="input-group">
+          <label for="prof-user">Usuário</label>
+          <input id="prof-user" required />
+        </div>
+        <div class="input-group">
+          <label for="prof-pass">Senha</label>
+          <input id="prof-pass" type="password" required />
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn-modern">Entrar</button>
+        </div>
+        <div id="prof-msg" class="msg"></div>
+      </form>
+    </div>
+
+    <div id="prof-panel" class="panel" style="display:none">
+      <h2>Bem-vindo, Professor</h2>
+      <div id="prof-info"></div>
+      <div class="actions">
+        <button onclick="location.reload()" class="btn-modern outline">Sair</button>
+      </div>
+    </div>
+  </main>
+
+<script type="module" src="./assets/js/app.js"></script>
+<script>
+function toggleMenu(){
+  document.querySelector('.menu').classList.toggle('open');
+}
+</script>
+</body>
+</html>
