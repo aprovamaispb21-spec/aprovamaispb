@@ -51,7 +51,174 @@
     </div>
   </main>
 
-<script type="module" src="./assets/js/app.js"></script>
+<script type="module">
+  // Importar funções do Firebase
+  import { 
+    autenticarProfessor, 
+    buscarTurmasProfessor, 
+    buscarInscricoesPorTurma 
+  } from "./assets/js/firebase.js";
+
+  // Função para mostrar notificação
+  function mostrarNotificacao(mensagem, tipo = "success") {
+    // Criar elemento de notificação
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo}`;
+    notification.innerHTML = `
+      <span>${mensagem}</span>
+      <button onclick="this.parentElement.remove()">×</button>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 100);
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        notification.remove();
+      }, 300);
+    }, 5000);
+  }
+
+  // Professores login
+  const profForm = document.getElementById('prof-login-form');
+  if(profForm){
+    profForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const u = document.getElementById('prof-user').value;
+      const p = document.getElementById('prof-pass').value;
+      
+      if (!u || !p) {
+        document.getElementById('prof-msg').textContent = 'Preencha todos os campos.';
+        document.getElementById('prof-msg').style.display = 'block';
+        return;
+      }
+      
+      try {
+        const ok = await autenticarProfessor(u, p);
+        const msg = document.getElementById('prof-msg');
+        
+        if(ok){
+          msg.style.color = 'green';
+          msg.textContent = 'Login bem-sucedido.';
+          msg.style.display = 'block';
+          document.getElementById('prof-login-form').style.display = 'none';
+          document.getElementById('prof-panel').style.display = 'block';
+          await carregarPainelProfessor(u);
+        } else {
+          msg.style.color = 'crimson';
+          msg.textContent = 'Usuário ou senha inválidos.';
+          msg.style.display = 'block';
+        }
+      } catch (error) {
+        console.error("Erro no login do professor:", error);
+        document.getElementById('prof-msg').style.color = 'crimson';
+        document.getElementById('prof-msg').textContent = 'Erro ao fazer login. Tente novamente.';
+        document.getElementById('prof-msg').style.display = 'block';
+      }
+    });
+  }
+
+  async function carregarPainelProfessor(usuario) {
+    try {
+      // Buscar turmas designadas para este professor
+      const turmas = await buscarTurmasProfessor(usuario);
+      const panel = document.getElementById('prof-info');
+      
+      if (turmas.length > 0) {
+        let html = '<h3>Suas Turmas</h3><div class="turma-grid">';
+        
+        for (const turma of turmas) {
+          // Buscar alunos para cada turma
+          const alunos = await buscarInscricoesPorTurma(turma.turma);
+          
+          html += `
+            <div class="turma-card">
+              <h4>${turma.turma}</h4>
+              <p>Designada em: ${new Date(turma.designadoEm).toLocaleDateString('pt-BR')}</p>
+              <div class="alunos-list">
+                <h5>Alunos (${alunos.length})</h5>
+                ${alunos.length > 0 ? 
+                  alunos.map(aluno => `
+                    <div class="aluno-item">
+                      <span>${aluno.name}</span>
+                      <span class="status-badge ${aluno.status || 'pendente'}">${aluno.status || 'pendente'}</span>
+                    </div>
+                  `).join('') : 
+                  '<p>Nenhum aluno nesta turma ainda.</p>'
+                }
+              </div>
+            </div>
+          `;
+        }
+        
+        html += '</div>';
+        panel.innerHTML = html;
+      } else {
+        panel.innerHTML = '<p>Nenhuma turma designada no momento.</p>';
+      }
+    } catch (error) {
+      console.error("Erro ao carregar painel do professor:", error);
+      document.getElementById('prof-info').innerHTML = '<p>Erro ao carregar informações. Tente novamente.</p>';
+    }
+  }
+
+  // Adicionar estilo de notificação se não existir
+  if (!document.querySelector('style#notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles';
+    style.textContent = `
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateX(100%);
+        opacity: 0;
+        transition: transform 0.3s, opacity 0.3s;
+      }
+      .notification.show {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      .notification.success {
+        background: #28a745;
+      }
+      .notification.error {
+        background: #dc3545;
+      }
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .status-badge.pendente {
+        background: #ffc107;
+        color: #000;
+      }
+      .status-badge.confirmado {
+        background: #28a745;
+        color: #fff;
+      }
+      .status-badge.cancelado {
+        background: #dc3545;
+        color: #fff;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+</script>
+
 <script>
 function toggleMenu(){
   document.querySelector('.menu').classList.toggle('open');
