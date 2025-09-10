@@ -1,230 +1,353 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login do Administrador - AprovaMaisPB</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #00AEEF 0%, #0077cc 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .login-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 420px;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .logo {
-            margin-bottom: 25px;
-        }
-        
-        .logo img {
-            height: 70px;
-        }
-        
-        .logo h1 {
-            color: #00AEEF;
-            font-size: 22px;
-            margin-top: 10px;
-        }
-        
-        h2 {
-            color: #333;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .input-group input:focus {
-            border-color: #00AEEF;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.2);
-        }
-        
-        .btn {
-            background: linear-gradient(90deg, #00AEEF, #0077cc);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 174, 239, 0.4);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .message {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .error {
-            background-color: #ffebee;
-            color: #d32f2f;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .admin-info {
-            margin-top: 25px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #6c757d;
-        }
-        
-        .admin-info h3 {
-            margin-bottom: 10px;
-            color: #00AEEF;
-        }
-        
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 20px;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - AprovaMaisPB</title>
+  <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <img src="assets/img/logo_aprovamaispb.png" alt="AprovaMaisPB Logo">
-            <h1>AprovaMaisPB</h1>
+  <header>
+    <nav class="nav">
+      <div class="brand">
+        <img src="./assets/img/logo_aprovamaispb.png" alt="Logo" />
+        <span>AprovaMaisPB</span>
+      </div>
+      <ul class="menu">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="matricula.html">Matricule-se</a></li>
+        <li><a href="professores.html">Professores</a></li>
+        <li><a href="login.html">Dashboard</a></li>
+      </ul>
+      <button class="hamburger" aria-label="menu" onclick="toggleMenu()">☰</button>
+    </nav>
+  </header>
+
+  <div id="dashboard" class="dashboard">
+    <h1>Painel do Administrador</h1>
+    
+    <div class="dash-grid">
+      <section class="card">
+        <h3>Inscrições</h3>
+        
+        <div class="search-container">
+          <input id="search" placeholder="Pesquisar por nome, email, curso..." />
+          <select id="filter-course" class="filter-select">
+            <option value="">Todos os cursos</option>
+            <option value="Medicina">Medicina</option>
+            <option value="Engenharia">Engenharia</option>
+            <option value="Direito">Direito</option>
+          </select>
+          <select id="filter-status" class="filter-select">
+            <option value="">Todos os status</option>
+            <option value="pendente">Pendente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
         </div>
         
-        <h2>Login do Administrador</h2>
+        <table id="inscricoes-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Curso</th>
+              <th>CPF</th>
+              <th>Criado</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
         
-        <form id="admin-login-form">
-            <div class="input-group">
-                <label for="admin-user">Usuário</label>
-                <input type="text" id="admin-user" required autocomplete="off">
-            </div>
-            
-            <div class="input-group">
-                <label for="admin-pass">Senha</label>
-                <input type="password" id="admin-pass" required>
-            </div>
-            
-            <button type="submit" class="btn">Entrar</button>
-        </form>
+        <div id="pagination" class="pagination"></div>
         
-        <div id="admin-msg" class="message error"></div>
-        
-        <div class="admin-info">
-            <h3>Credenciais de Acesso</h3>
-            <p>Usuário: <strong>administrador</strong></p>
-            <p>Senha: <strong>159753</strong></p>
+        <div class="actions">
+          <button id="export-btn" class="btn-modern">📊 Exportar CSV</button>
         </div>
+      </section>
+
+      <section class="card">
+        <h3>Professores</h3>
+        <button id="gerar-prof" class="btn-modern">👨‍🏫 Gerar login de professor</button>
+        <ul id="prof-list"></ul>
+      </section>
     </div>
+    
+    <div class="actions">
+      <button id="logout-admin" class="btn-modern outline">🚪 Sair</button>
+    </div>
+  </div>
 
-    <script>
-        document.getElementById('admin-login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const user = document.getElementById('admin-user').value;
-            const pass = document.getElementById('admin-pass').value;
-            const messageDiv = document.getElementById('admin-msg');
-            
-            // Limpar mensagens anteriores
-            messageDiv.style.display = 'none';
-            messageDiv.className = 'message';
-            
-            // Validação básica
-            if (!user || !pass) {
-                messageDiv.textContent = 'Por favor, preencha todos os campos.';
-                messageDiv.classList.add('error');
-                messageDiv.style.display = 'block';
-                return;
-            }
-            
-            // Verificar credenciais
-            if (user === 'administrador' && pass === '159753') {
-                messageDiv.textContent = 'Login bem-sucedido! Redirecionando...';
-                messageDiv.classList.add('success');
-                messageDiv.style.display = 'block';
-                
-                // Redirecionar para o dashboard após 1 segundo
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1000);
-            } else {
-                messageDiv.textContent = 'Usuário ou senha incorretos. Tente novamente.';
-                messageDiv.classList.add('error');
-                messageDiv.style.display = 'block';
-                
-                // Efeito de shake no formulário para indicar erro
-                document.querySelector('.login-container').style.animation = 'shake 0.5s';
-                setTimeout(() => {
-                    document.querySelector('.login-container').style.animation = '';
-                }, 500);
-            }
-        });
-
-        // Adicionar estilo de animação para shake
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-                20%, 40%, 60%, 80% { transform: translateX(10px); }
-            }
+  <script>
+    // Verificar se o usuário está logado
+    function checkAuth() {
+      const isLoggedIn = localStorage.getItem('adminLoggedIn');
+      if (!isLoggedIn) {
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // Logout function
+    function logout() {
+      localStorage.removeItem('adminLoggedIn');
+      window.location.href = 'login.html';
+    }
+    
+    // Menu toggle function
+    function toggleMenu() {
+      document.querySelector('.menu').classList.toggle('open');
+    }
+    
+    // Check authentication on page load
+    checkAuth();
+    
+    // Add event listener to logout button
+    document.getElementById('logout-admin').addEventListener('click', logout);
+  </script>
+  
+  <script type="module">
+    // Importar funções do Firebase
+    import { 
+      listarInscricoes, 
+      listarProfessores, 
+      salvarProfessor,
+      designarTurma,
+      atualizarInscricao
+    } from "./assets/js/firebase.js";
+    
+    // Configurações
+    const ITENS_POR_PAGINA = 10;
+    let paginaAtual = 1;
+    let todasInscricoes = [];
+    let inscricoesFiltradas = [];
+    
+    // Utilidades
+    function mostrarNotificacao(mensagem, tipo = "success") {
+      // Implementação da função de notificação
+      alert(`${tipo.toUpperCase()}: ${mensagem}`);
+    }
+    
+    function formatarCPF(cpf) {
+      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    }
+    
+    function gerarSenha(tamanho = 8) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      return Array.from({ length: tamanho }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+    }
+    
+    // Dashboard functions
+    async function renderDashboard(){
+      try {
+        todasInscricoes = await listarInscricoes();
+        inscricoesFiltradas = [...todasInscricoes];
+        
+        renderInscricoes();
+        renderProfessores();
+        setupFiltros();
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+        mostrarNotificacao("Erro ao carregar dados do dashboard", "error");
+      }
+    }
+    
+    function renderInscricoes() {
+      const tbody = document.querySelector('#inscricoes-table tbody');
+      if (!tbody) return;
+      
+      // Aplicar paginação
+      const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+      const fim = inicio + ITENS_POR_PAGINA;
+      const inscricoesPagina = inscricoesFiltradas.slice(inicio, fim);
+      
+      tbody.innerHTML = '';
+      inscricoesPagina.forEach(i => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i.name}</td>
+          <td>${i.email}</td>
+          <td>${i.course}</td>
+          <td>${formatarCPF(i.cpf)}</td>
+          <td>${new Date(i.criadoEm).toLocaleString('pt-BR')}</td>
+          <td>
+            <select class="status-select" data-id="${i.id}" onchange="atualizarStatus(this)">
+              <option value="pendente" ${i.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+              <option value="confirmado" ${i.status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+              <option value="cancelado" ${i.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+            </select>
+          </td>
         `;
-        document.head.appendChild(style);
-    </script>
+        tbody.appendChild(tr);
+      });
+      
+      renderPaginacao();
+    }
+    
+    function renderPaginacao() {
+      const paginationContainer = document.getElementById('pagination');
+      if (!paginationContainer) return;
+      
+      const totalPaginas = Math.ceil(inscricoesFiltradas.length / ITENS_POR_PAGINA);
+      
+      let html = '';
+      for (let i = 1; i <= totalPaginas; i++) {
+        html += `<button class="${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
+      }
+      
+      paginationContainer.innerHTML = html;
+    }
+    
+    window.mudarPagina = function(pagina) {
+      paginaAtual = pagina;
+      renderInscricoes();
+    }
+    
+    function setupFiltros() {
+      const searchInput = document.getElementById('search');
+      const filterCourse = document.getElementById('filter-course');
+      const filterStatus = document.getElementById('filter-status');
+      
+      if (searchInput) {
+        searchInput.addEventListener('input', aplicarFiltros);
+      }
+      
+      if (filterCourse) {
+        filterCourse.addEventListener('change', aplicarFiltros);
+      }
+      
+      if (filterStatus) {
+        filterStatus.addEventListener('change', aplicarFiltros);
+      }
+    }
+    
+    function aplicarFiltros() {
+      const searchTerm = document.getElementById('search')?.value.toLowerCase() || '';
+      const courseFilter = document.getElementById('filter-course')?.value || '';
+      const statusFilter = document.getElementById('filter-status')?.value || '';
+      
+      inscricoesFiltradas = todasInscricoes.filter(inscricao => {
+        const matchesSearch = 
+          inscricao.name.toLowerCase().includes(searchTerm) ||
+          inscricao.email.toLowerCase().includes(searchTerm) ||
+          inscricao.course.toLowerCase().includes(searchTerm) ||
+          inscricao.cpf.includes(searchTerm);
+        
+        const matchesCourse = courseFilter ? inscricao.course === courseFilter : true;
+        const matchesStatus = statusFilter ? inscricao.status === statusFilter : true;
+        
+        return matchesSearch && matchesCourse && matchesStatus;
+      });
+      
+      paginaAtual = 1;
+      renderInscricoes();
+    }
+    
+    window.atualizarStatus = async function(select) {
+      const id = select.dataset.id;
+      const status = select.value;
+      
+      try {
+        await atualizarInscricao(id, { status });
+        mostrarNotificacao(`Status atualizado para ${status}`, "success");
+        
+        // Atualizar localmente
+        const index = todasInscricoes.findIndex(i => i.id === id);
+        if (index !== -1) {
+          todasInscricoes[index].status = status;
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar status:", error);
+        mostrarNotificacao("Erro ao atualizar status", "error");
+      }
+    }
+    
+    async function renderProfessores() {
+      const profs = await listarProfessores();
+      const ul = document.getElementById('prof-list');
+      if(ul){
+        ul.innerHTML = '';
+        profs.forEach(p => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <div class="prof-item">
+              <strong>${p.nome}</strong> — ${p.usuario} / ${p.senha}
+              <div>
+                <button class="btn-modern outline small" onclick="designarTurmaParaProfessor('${p.usuario}')">Designar Turma</button>
+              </div>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+      }
+      
+      document.getElementById('gerar-prof').addEventListener('click', async () => {
+        const nome = prompt('Nome do professor:');
+        if(!nome) return;
+        
+        const usuario = nome.toLowerCase().replace(/\s+/g, '.') + Math.floor(Math.random() * 90 + 10);
+        const senha = gerarSenha();
+        
+        try {
+          await salvarProfessor({nome, usuario, senha});
+          mostrarNotificacao(`Professor criado: ${usuario} / ${senha}`);
+          renderProfessores();
+        } catch (error) {
+          console.error("Erro ao criar professor:", error);
+          mostrarNotificacao("Erro ao criar professor", "error");
+        }
+      });
+    }
+    
+    window.designarTurmaParaProfessor = async function(usuario) {
+      const turma = prompt(`Digite o nome da turma para designar ao professor ${usuario}:`);
+      if(!turma) return;
+      
+      try {
+        await designarTurma(usuario, turma);
+        mostrarNotificacao(`Turma ${turma} designada para ${usuario}`);
+      } catch (error) {
+        console.error("Erro ao designar turma:", error);
+        mostrarNotificacao("Erro ao designar turma", "error");
+      }
+    }
+    
+    // Exportar CSV
+    document.getElementById('export-btn').addEventListener('click', () => {
+      if (inscricoesFiltradas.length === 0) {
+        mostrarNotificacao("Nenhum dado para exportar", "warning");
+        return;
+      }
+      
+      const csvContent = [
+        ['Nome', 'Email', 'Curso', 'CPF', 'Data de Inscrição', 'Status'],
+        ...inscricoesFiltradas.map(i => [
+          i.name,
+          i.email,
+          i.course,
+          formatarCPF(i.cpf),
+          new Date(i.criadoEm).toLocaleString('pt-BR'),
+          i.status || 'pendente'
+        ])
+      ].map(e => e.join(',')).join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `inscricoes_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      mostrarNotificacao("CSV exportado com sucesso");
+    });
+    
+    // Inicializar o dashboard
+    renderDashboard();
+  </script>
 </body>
 </html>
